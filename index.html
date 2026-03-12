@@ -3,149 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Box Pro - All-in-One</title>
+    <title>My Box Pro - Customizable</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap');
         body { font-family: 'Kanit', sans-serif; background-color: #f9fafb; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
         .box-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body class="max-w-md mx-auto min-h-screen relative shadow-2xl bg-white">
 
-    <div id="page-login" class="p-8 min-h-screen flex flex-col justify-center text-center">
-        <div class="w-20 h-20 bg-indigo-600 rounded-3xl mx-auto flex items-center justify-center text-white text-4xl mb-6 shadow-xl">📦</div>
-        <h1 class="text-2xl font-bold mb-2">My Box Setup</h1>
-        <p class="text-gray-400 text-sm mb-8">เชื่อมต่อ Google Sheets เพื่อเริ่มจัดการของ</p>
-        <input type="text" id="input-url" placeholder="วาง Web App URL ที่นี่" class="w-full p-4 bg-gray-100 rounded-2xl mb-4 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
-        <button onclick="doLogin()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">เริ่มใช้งาน</button>
-    </div>
-
-    <div id="page-main" class="hidden pb-24">
-        <header class="p-6 bg-white sticky top-0 z-10 border-b border-gray-50">
+    <div id="page-main" class="pb-24">
+        <header class="p-6 bg-white sticky top-0 z-10 border-b border-gray-100">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-xl font-bold">คลังของฉัน 📦</h1>
-                <button onclick="openScanner()" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-qrcode"></i>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">คลังของฉัน 📦</h1>
+                    <p class="text-xs text-gray-400">จัดการและตั้งชื่อกล่องได้ตามใจ</p>
+                </div>
+                <button onclick="openScanner()" class="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-qrcode text-xl"></i>
                 </button>
             </div>
-            <div class="relative">
+            
+            <div class="relative mb-4">
                 <i class="fas fa-search absolute left-4 top-4 text-gray-300"></i>
-                <input type="text" id="search" onkeyup="doSearch()" placeholder="ค้นหาของว่าอยู่กล่องไหน..." class="w-full p-3.5 pl-12 bg-gray-100 rounded-2xl text-sm border-none focus:ring-2 focus:ring-indigo-400 outline-none">
+                <input type="text" id="search" onkeyup="doSearch()" placeholder="ค้นหาของในทุกกล่อง..." class="w-full p-3.5 pl-12 bg-gray-100 rounded-2xl text-sm border-none outline-none focus:ring-2 focus:ring-indigo-400">
             </div>
-            <div id="search-info" class="mt-2 text-xs text-indigo-600 font-medium h-4 text-center"></div>
+            <div id="search-info" class="text-xs text-indigo-600 font-medium h-4 text-center"></div>
         </header>
 
-        <div class="p-6 box-grid" id="grid-container"></div>
+        <div class="p-6 box-grid" id="grid-container">
+            </div>
+
+        <button onclick="openAddBoxModal()" class="fixed bottom-28 right-6 w-14 h-14 bg-emerald-500 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl hover:scale-110 transition active:scale-95 z-30">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <div id="modal-add-box" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-6">
+        <div class="bg-white w-full rounded-3xl p-6 shadow-2xl">
+            <h3 class="text-xl font-bold mb-4">เพิ่มกล่องใหม่</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-gray-400 ml-1">รหัสกล่อง (เช่น B-13)</label>
+                    <input type="text" id="new-box-id" placeholder="B-01" class="w-full p-4 bg-gray-50 rounded-xl outline-none border border-gray-100 focus:border-indigo-400 uppercase">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 ml-1">ชื่อกล่อง (เช่น ของใช้ในครัว)</label>
+                    <input type="text" id="new-box-name" placeholder="ชื่อเรียกกล่องนี้" class="w-full p-4 bg-gray-50 rounded-xl outline-none border border-gray-100 focus:border-indigo-400">
+                </div>
+            </div>
+            <div class="flex space-x-3 mt-6">
+                <button onclick="closeAddBoxModal()" class="flex-1 py-4 text-gray-400 font-bold">ยกเลิก</button>
+                <button onclick="addNewBox()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg">ยืนยันเพิ่มกล่อง</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="drawer" class="fixed inset-0 bg-black/40 z-40 hidden opacity-0 transition-opacity">
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-8 max-h-[85vh] overflow-y-auto">
+            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
+            <div class="mb-6">
+                <span id="drawer-id-label" class="text-xs font-bold text-indigo-500 uppercase tracking-widest">ID: B-01</span>
+                <h2 id="drawer-name" class="text-2xl font-bold text-gray-800">ชื่อกล่อง</h2>
+            </div>
+            <div id="item-inputs" class="space-y-3"></div>
+            <button onclick="addNewItemInput('')" class="w-full mt-4 py-3 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400 text-sm">+ เพิ่มรายการของ</button>
+            <button id="btn-save" onclick="saveToSheet()" class="w-full mt-6 bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg">บันทึกลง Google Sheet</button>
+            <button onclick="closeDrawer()" class="w-full mt-2 py-4 text-gray-400 text-sm">ปิดหน้าต่าง</button>
+        </div>
     </div>
 
     <div id="page-scan" class="hidden fixed inset-0 bg-black z-50 flex flex-col">
-        <div class="p-6 flex justify-between items-center">
-            <button onclick="closeScanner()" class="text-white text-xl">✕</button>
-            <span class="font-bold text-white">สแกน QR Code</span>
+        <div class="p-6 flex justify-between items-center text-white">
+            <button onclick="closeScanner()" class="text-xl">✕</button>
+            <span class="font-bold">สแกนรหัสกล่อง</span>
             <div class="w-6"></div>
         </div>
         <div id="reader" class="flex-1"></div>
     </div>
 
-    <div id="drawer" class="fixed inset-0 bg-black/40 z-40 hidden opacity-0 transition-opacity">
-        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-8 max-h-[85vh] overflow-y-auto no-scrollbar">
-            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
-            <h2 id="drawer-id" class="text-2xl font-bold mb-6 text-gray-800">Box ID</h2>
-            <div id="item-inputs" class="space-y-3"></div>
-            <button onclick="addNewInput('')" class="w-full mt-4 py-3 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400 text-sm font-medium">+ เพิ่มรายการ</button>
-            <button id="btn-save" onclick="saveToSheet()" class="w-full mt-6 bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-indigo-100 active:bg-indigo-700">บันทึกลง Google Sheet</button>
-        </div>
-    </div>
-
     <script>
-        let currentUrl = localStorage.getItem('mybox_url');
-        let currentBox = '';
-        let inventoryData = JSON.parse(localStorage.getItem('mybox_data')) || {};
-
-        function doLogin() {
-            const url = document.getElementById('input-url').value;
-            if(url.includes('google.com')) {
-                localStorage.setItem('mybox_url', url);
-                currentUrl = url;
-                initApp();
-            } else alert('URL ไม่ถูกต้อง');
-        }
-
-        function initApp() {
-            document.getElementById('page-login').classList.add('hidden');
-            document.getElementById('page-main').classList.remove('hidden');
-            renderGrid();
-        }
+        // โครงสร้างข้อมูลใหม่: เก็บทั้งชื่อกล่องและรายการของ
+        let boxes = JSON.parse(localStorage.getItem('mybox_boxes')) || [
+            { id: 'B-01', name: 'ของใช้ไอที', items: [] },
+            { id: 'B-02', name: 'ชุดเครื่องนอน', items: [] }
+        ];
 
         function renderGrid() {
             const container = document.getElementById('grid-container');
             container.innerHTML = '';
-            for(let i=1; i<=12; i++) {
-                const id = `B-${String(i).padStart(2,'0')}`;
-                const count = inventoryData[id] ? inventoryData[id].length : 0;
+            boxes.forEach(box => {
                 container.innerHTML += `
-                    <div onclick="openBox('${id}')" class="flex flex-col items-center relative active:scale-95 transition">
-                        <div class="absolute -top-1 -right-1 w-6 h-6 bg-indigo-600 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center">${count}</div>
-                        <div class="w-full aspect-square bg-gray-50 border border-gray-100 rounded-[28px] flex items-center justify-center mb-1">
+                    <div onclick="openBox('${box.id}')" class="flex flex-col items-center relative active:scale-95 transition">
+                        <div class="absolute -top-1 -right-1 w-6 h-6 bg-indigo-600 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center">${box.items.length}</div>
+                        <div class="w-full aspect-square bg-white border border-gray-100 rounded-[28px] flex items-center justify-center mb-1 shadow-sm">
                             <i class="fas fa-box text-2xl text-gray-200"></i>
                         </div>
-                        <span class="text-[11px] font-bold text-gray-500">${id}</span>
+                        <span class="text-[10px] font-bold text-gray-800 text-center truncate w-full px-1">${box.name}</span>
+                        <span class="text-[9px] text-gray-400 uppercase">${box.id}</span>
                     </div>`;
-            }
+            });
+            localStorage.setItem('mybox_boxes', JSON.stringify(boxes));
         }
 
+        function openAddBoxModal() { document.getElementById('modal-add-box').classList.remove('hidden'); }
+        function closeAddBoxModal() { document.getElementById('modal-add-box').classList.add('hidden'); }
+
+        function addNewBox() {
+            const id = document.getElementById('new-box-id').value.trim().toUpperCase();
+            const name = document.getElementById('new-box-name').value.trim();
+            if(!id || !name) return alert('กรุณากรอกข้อมูลให้ครบ');
+            if(boxes.some(b => b.id === id)) return alert('รหัสกล่องนี้มีอยู่แล้ว');
+            
+            boxes.push({ id, name, items: [] });
+            renderGrid();
+            closeAddBoxModal();
+            document.getElementById('new-box-id').value = '';
+            document.getElementById('new-box-name').value = '';
+        }
+
+        let currentBoxId = '';
         function openBox(id) {
-            currentBox = id;
-            document.getElementById('drawer-id').innerText = "จัดการกล่อง " + id;
+            currentBoxId = id;
+            const box = boxes.find(b => b.id === id);
+            document.getElementById('drawer-id-label').innerText = `ID: ${box.id}`;
+            document.getElementById('drawer-name').innerText = box.name;
+            
             const list = document.getElementById('item-inputs');
             list.innerHTML = '';
-            const items = inventoryData[id] || [];
-            items.forEach(it => addNewInput(it));
-            if(items.length === 0) addNewInput('');
+            box.items.forEach(it => addNewItemInput(it));
+            if(box.items.length === 0) addNewItemInput('');
             
             const d = document.getElementById('drawer');
             d.classList.remove('hidden');
             setTimeout(() => d.classList.add('opacity-100'), 10);
         }
 
-        function addNewInput(val) {
+        function addNewItemInput(val) {
             const div = document.createElement('div');
-            div.className = "flex space-x-2";
-            div.innerHTML = `<input type="text" value="${val}" class="box-input w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-1 focus:ring-indigo-400" placeholder="ชื่อของ...">`;
+            div.innerHTML = `<input type="text" value="${val}" class="box-item-input w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-1 focus:ring-indigo-400" placeholder="ชื่อของ...">`;
             document.getElementById('item-inputs').appendChild(div);
         }
 
         async function saveToSheet() {
-            const inputs = document.querySelectorAll('.box-input');
+            const inputs = document.querySelectorAll('.box-item-input');
             const items = Array.from(inputs).map(i => i.value).filter(v => v.trim() !== '');
-            const btn = document.getElementById('btn-save');
+            const box = boxes.find(b => b.id === currentBoxId);
             
-            btn.innerText = "กำลังบันทึก..."; btn.disabled = true;
+            box.items = items;
+            const url = localStorage.getItem('mybox_url'); // ดึง URL ที่เคยเซฟไว้ตอน login
             
-            try {
-                await fetch(currentUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ boxId: currentBox, items: items }) });
-                inventoryData[currentBox] = items;
-                localStorage.setItem('mybox_data', JSON.stringify(inventoryData));
-                renderGrid();
-                closeDrawer();
-            } catch (e) { alert("บันทึกไม่สำเร็จ"); }
-            btn.innerText = "บันทึกลง Google Sheet"; btn.disabled = false;
+            if(url) {
+                document.getElementById('btn-save').innerText = "กำลังบันทึก...";
+                try {
+                    await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ boxId: currentBoxId, items: items }) });
+                } catch(e) {}
+            }
+            
+            renderGrid();
+            closeDrawer();
+            document.getElementById('btn-save').innerText = "บันทึกลง Google Sheet";
         }
 
         function doSearch() {
             const q = document.getElementById('search').value.toLowerCase();
             const info = document.getElementById('search-info');
             if(!q) { info.innerText = ''; return; }
-            for (const [id, items] of Object.entries(inventoryData)) {
-                if(items.some(it => it.toLowerCase().includes(q))) {
-                    info.innerText = `🔍 พบของชิ้นนี้อยู่ใน "กล่อง ${id}"`; return;
-                }
-            }
-            info.innerText = '❌ ไม่พบของที่ค้นหา';
+            const found = boxes.find(b => b.items.some(it => it.toLowerCase().includes(q)) || b.name.toLowerCase().includes(q));
+            info.innerText = found ? `🔍 อยู่ใน: ${found.name} (${found.id})` : '❌ ไม่พบข้อมูล';
+        }
+
+        function closeDrawer() { 
+            document.getElementById('drawer').classList.remove('opacity-100');
+            setTimeout(() => document.getElementById('drawer').classList.add('hidden'), 300);
         }
 
         function openScanner() {
@@ -154,17 +188,13 @@
             scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
                 scanner.stop();
                 document.getElementById('page-scan').classList.add('hidden');
-                openBox(text);
+                if(boxes.some(b => b.id === text)) openBox(text);
+                else alert('ไม่พบรหัสกล่องนี้ในระบบ');
             });
         }
-
         function closeScanner() { document.getElementById('page-scan').classList.add('hidden'); }
-        function closeDrawer() { 
-            document.getElementById('drawer').classList.remove('opacity-100');
-            setTimeout(() => document.getElementById('drawer').classList.add('hidden'), 300);
-        }
 
-        if(currentUrl) initApp();
+        renderGrid();
     </script>
 </body>
 </html>
