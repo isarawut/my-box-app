@@ -3,197 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Box Pro - Customizable</title>
+    <title id="tab-title">My Box Rainbow</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap');
-        body { font-family: 'Kanit', sans-serif; background-color: #f9fafb; }
-        .box-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        body { font-family: 'Kanit', sans-serif; background-color: #ffffff; }
+        .box-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
         .hidden { display: none; }
+        .transition-all { transition: all 0.3s ease; }
+        .rainbow-text {
+            background-image: linear-gradient(to right, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #a855f7);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
     </style>
 </head>
-<body class="max-w-md mx-auto min-h-screen relative shadow-2xl bg-white">
+<body class="max-w-md mx-auto min-h-screen relative bg-white overflow-x-hidden">
 
-    <div id="page-main" class="pb-24">
-        <header class="p-6 bg-white sticky top-0 z-10 border-b border-gray-100">
+    <div id="app-content">
+        <header class="p-6 bg-white sticky top-0 z-10 border-b border-gray-50">
             <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-800">คลังของฉัน 📦</h1>
-                    <p class="text-xs text-gray-400">จัดการและตั้งชื่อกล่องได้ตามใจ</p>
+                <div onclick="showRenameAppModal()" class="cursor-pointer group">
+                    <h1 id="app-name-display" class="text-2xl font-bold text-gray-800 italic uppercase">
+                        MY BOX
+                    </h1>
+                    <p class="text-[9px] text-gray-400 group-hover:text-indigo-500 transition">
+                        <i class="fas fa-edit mr-1"></i>แตะเพื่อเปลี่ยนชื่อแอป
+                    </p>
                 </div>
-                <button onclick="openScanner()" class="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg">
-                    <i class="fas fa-qrcode text-xl"></i>
+                <button onclick="openScanner()" class="w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition">
+                    <i class="fas fa-camera"></i>
                 </button>
             </div>
-            
-            <div class="relative mb-4">
+            <div class="relative">
                 <i class="fas fa-search absolute left-4 top-4 text-gray-300"></i>
-                <input type="text" id="search" onkeyup="doSearch()" placeholder="ค้นหาของในทุกกล่อง..." class="w-full p-3.5 pl-12 bg-gray-100 rounded-2xl text-sm border-none outline-none focus:ring-2 focus:ring-indigo-400">
+                <input type="text" id="search" onkeyup="doSearch()" placeholder="ค้นหาของในกล่อง..." class="w-full p-3.5 pl-12 bg-gray-100 rounded-2xl text-sm border-none outline-none focus:ring-2 focus:ring-indigo-400">
             </div>
-            <div id="search-info" class="text-xs text-indigo-600 font-medium h-4 text-center"></div>
         </header>
 
-        <div class="p-6 box-grid" id="grid-container">
-            </div>
+        <div class="p-6 box-grid pb-40" id="grid-container"></div>
 
-        <button onclick="openAddBoxModal()" class="fixed bottom-28 right-6 w-14 h-14 bg-emerald-500 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl hover:scale-110 transition active:scale-95 z-30">
-            <i class="fas fa-plus"></i>
-        </button>
+        <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 flex space-x-3 z-30">
+            <button onclick="showAddBoxModal()" class="flex-1 bg-gray-100 text-gray-600 py-4 rounded-2xl font-bold text-sm flex items-center justify-center">
+                <i class="fas fa-plus mr-2"></i> เพิ่มกล่อง
+            </button>
+            <button onclick="generatePrintPage()" class="flex-1 bg-gradient-to-r from-red-500 to-purple-600 text-white py-4 rounded-2xl font-bold text-sm shadow-lg flex items-center justify-center active:scale-95 transition">
+                <i class="fas fa-qrcode mr-2"></i> พิมพ์ QR
+            </button>
+        </div>
     </div>
 
-    <div id="modal-add-box" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-6">
+    <div id="modal-app-name" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-6 backdrop-blur-sm">
         <div class="bg-white w-full rounded-3xl p-6 shadow-2xl">
-            <h3 class="text-xl font-bold mb-4">เพิ่มกล่องใหม่</h3>
+            <h3 class="text-xl font-bold mb-4 text-gray-800">ตั้งชื่อแอปของคุณ</h3>
+            <input type="text" id="new-app-name" placeholder="เช่น คลังยาบ้านฉัน, MY STORE" class="w-full p-4 bg-gray-50 rounded-xl outline-none border border-gray-100 focus:border-indigo-400 uppercase font-bold text-center text-xl">
+            <div class="flex space-x-3 mt-6">
+                <button onclick="hideRenameAppModal()" class="flex-1 py-4 text-gray-400 font-bold">ยกเลิก</button>
+                <button onclick="saveAppName()" class="flex-1 bg-gray-900 text-white py-4 rounded-2xl font-bold">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-add" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-white w-full rounded-3xl p-6 shadow-2xl">
+            <h3 class="text-xl font-bold mb-4 text-gray-800">สร้างกล่องใหม่</h3>
             <div class="space-y-4">
-                <div>
-                    <label class="text-xs text-gray-400 ml-1">รหัสกล่อง (เช่น B-13)</label>
-                    <input type="text" id="new-box-id" placeholder="B-01" class="w-full p-4 bg-gray-50 rounded-xl outline-none border border-gray-100 focus:border-indigo-400 uppercase">
-                </div>
-                <div>
-                    <label class="text-xs text-gray-400 ml-1">ชื่อกล่อง (เช่น ของใช้ในครัว)</label>
-                    <input type="text" id="new-box-name" placeholder="ชื่อเรียกกล่องนี้" class="w-full p-4 bg-gray-50 rounded-xl outline-none border border-gray-100 focus:border-indigo-400">
-                </div>
+                <input type="text" id="new-id" placeholder="รหัสกล่อง (เช่น B-05)" class="w-full p-4 bg-gray-50 rounded-xl outline-none border border-gray-100 focus:border-indigo-400 uppercase">
+                <input type="text" id="new-name" placeholder="ชื่อกล่อง (เช่น ของใช้ไอที)" class="w-full p-4 bg-gray-50 rounded-xl outline-none border border-gray-100 focus:border-indigo-400">
             </div>
             <div class="flex space-x-3 mt-6">
-                <button onclick="closeAddBoxModal()" class="flex-1 py-4 text-gray-400 font-bold">ยกเลิก</button>
-                <button onclick="addNewBox()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg">ยืนยันเพิ่มกล่อง</button>
+                <button onclick="hideAddBoxModal()" class="flex-1 py-4 text-gray-400 font-bold">ยกเลิก</button>
+                <button onclick="confirmAddBox()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg">ตกลง</button>
             </div>
         </div>
     </div>
 
-    <div id="drawer" class="fixed inset-0 bg-black/40 z-40 hidden opacity-0 transition-opacity">
-        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-8 max-h-[85vh] overflow-y-auto">
+    <div id="drawer" class="fixed inset-0 bg-black/40 z-50 hidden opacity-0 transition-all">
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-8 max-h-[85vh] overflow-y-auto no-scrollbar">
             <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
-            <div class="mb-6">
-                <span id="drawer-id-label" class="text-xs font-bold text-indigo-500 uppercase tracking-widest">ID: B-01</span>
-                <h2 id="drawer-name" class="text-2xl font-bold text-gray-800">ชื่อกล่อง</h2>
-            </div>
+            <h2 id="drawer-name" class="text-2xl font-bold text-gray-800 mb-6">รายการของ</h2>
             <div id="item-inputs" class="space-y-3"></div>
-            <button onclick="addNewItemInput('')" class="w-full mt-4 py-3 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400 text-sm">+ เพิ่มรายการของ</button>
-            <button id="btn-save" onclick="saveToSheet()" class="w-full mt-6 bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg">บันทึกลง Google Sheet</button>
-            <button onclick="closeDrawer()" class="w-full mt-2 py-4 text-gray-400 text-sm">ปิดหน้าต่าง</button>
+            <button onclick="addNewItemInput('')" class="w-full mt-4 py-3 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400 text-sm font-medium">+ เพิ่มรายการ</button>
+            <button onclick="saveItems()" class="w-full mt-6 bg-gray-900 text-white py-4 rounded-2xl font-bold shadow-lg">บันทึกข้อมูล</button>
+            <button onclick="closeDrawer()" class="w-full mt-2 py-4 text-gray-300 text-sm">ปิด</button>
         </div>
     </div>
 
-    <div id="page-scan" class="hidden fixed inset-0 bg-black z-50 flex flex-col">
-        <div class="p-6 flex justify-between items-center text-white">
-            <button onclick="closeScanner()" class="text-xl">✕</button>
-            <span class="font-bold">สแกนรหัสกล่อง</span>
-            <div class="w-6"></div>
+    <div id="print-view" class="hidden min-h-screen bg-white p-4">
+        <div class="mb-6 flex justify-between items-center bg-gray-900 p-4 rounded-2xl text-white">
+            <button onclick="location.reload()" class="text-sm font-bold"><i class="fas fa-arrow-left mr-2"></i> กลับหน้าแอป</button>
+            <button onclick="window.print()" class="bg-indigo-500 px-6 py-2 rounded-xl font-bold shadow-lg">สั่งพิมพ์</button>
         </div>
-        <div id="reader" class="flex-1"></div>
+        <div id="qr-print-grid" class="grid grid-cols-2 gap-4"></div>
     </div>
 
     <script>
-        // โครงสร้างข้อมูลใหม่: เก็บทั้งชื่อกล่องและรายการของ
-        let boxes = JSON.parse(localStorage.getItem('mybox_boxes')) || [
-            { id: 'B-01', name: 'ของใช้ไอที', items: [] },
-            { id: 'B-02', name: 'ชุดเครื่องนอน', items: [] }
-        ];
+        let boxes = JSON.parse(localStorage.getItem('mybox_final_data')) || [];
+        let appName = localStorage.getItem('mybox_app_name') || 'MY BOX';
+        let currentBoxId = '';
+
+        function updateAppDisplay() {
+            document.getElementById('app-name-display').innerText = appName;
+            document.getElementById('tab-title').innerText = appName;
+        }
+
+        function showRenameAppModal() {
+            document.getElementById('new-app-name').value = appName;
+            document.getElementById('modal-app-name').classList.remove('hidden');
+        }
+
+        function hideRenameAppModal() { document.getElementById('modal-app-name').classList.add('hidden'); }
+
+        function saveAppName() {
+            const name = document.getElementById('new-app-name').value.trim().toUpperCase();
+            if(name) {
+                appName = name;
+                localStorage.setItem('mybox_app_name', appName);
+                updateAppDisplay();
+            }
+            hideRenameAppModal();
+        }
+
+        function getRainbowColor(updatedTime) {
+            const sortedTimes = boxes.map(b => b.updated).sort((a, b) => b - a);
+            const rank = sortedTimes.indexOf(updatedTime);
+            const total = sortedTimes.length;
+            const hue = total <= 1 ? 0 : (rank / (total - 1)) * 280;
+            return `hsl(${hue}, 80%, 55%)`;
+        }
 
         function renderGrid() {
             const container = document.getElementById('grid-container');
             container.innerHTML = '';
-            boxes.forEach(box => {
+            const sortedBoxes = [...boxes].sort((a, b) => b.updated - a.updated);
+
+            sortedBoxes.forEach(box => {
+                const color = getRainbowColor(box.updated);
                 container.innerHTML += `
-                    <div onclick="openBox('${box.id}')" class="flex flex-col items-center relative active:scale-95 transition">
-                        <div class="absolute -top-1 -right-1 w-6 h-6 bg-indigo-600 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center">${box.items.length}</div>
-                        <div class="w-full aspect-square bg-white border border-gray-100 rounded-[28px] flex items-center justify-center mb-1 shadow-sm">
-                            <i class="fas fa-box text-2xl text-gray-200"></i>
+                    <div onclick="openBox('${box.id}')" class="flex flex-col items-center relative active:scale-95 transition-all">
+                        <div class="absolute -top-1 -right-1 w-6 h-6 text-white text-[9px] font-bold rounded-full border-2 border-white flex items-center justify-center shadow-sm" style="background-color: ${color}">
+                            ${box.items.length}
                         </div>
-                        <span class="text-[10px] font-bold text-gray-800 text-center truncate w-full px-1">${box.name}</span>
-                        <span class="text-[9px] text-gray-400 uppercase">${box.id}</span>
+                        <div class="w-full aspect-square bg-white border-2 rounded-[30px] flex items-center justify-center mb-1 shadow-sm" style="border-color: ${color}22; background-color: ${color}08">
+                            <i class="fas fa-box text-2xl" style="color: ${color}"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-700 text-center truncate w-full px-1">${box.name}</span>
+                        <span class="text-[8px] text-gray-300 uppercase">${box.id}</span>
                     </div>`;
             });
-            localStorage.setItem('mybox_boxes', JSON.stringify(boxes));
+            localStorage.setItem('mybox_final_data', JSON.stringify(boxes));
         }
 
-        function openAddBoxModal() { document.getElementById('modal-add-box').classList.remove('hidden'); }
-        function closeAddBoxModal() { document.getElementById('modal-add-box').classList.add('hidden'); }
-
-        function addNewBox() {
-            const id = document.getElementById('new-box-id').value.trim().toUpperCase();
-            const name = document.getElementById('new-box-name').value.trim();
+        function showAddBoxModal() { document.getElementById('modal-add').classList.remove('hidden'); }
+        function hideAddBoxModal() { document.getElementById('modal-add').classList.add('hidden'); }
+        
+        function confirmAddBox() {
+            const id = document.getElementById('new-id').value.trim().toUpperCase();
+            const name = document.getElementById('new-name').value.trim();
             if(!id || !name) return alert('กรุณากรอกข้อมูลให้ครบ');
-            if(boxes.some(b => b.id === id)) return alert('รหัสกล่องนี้มีอยู่แล้ว');
-            
-            boxes.push({ id, name, items: [] });
+            boxes.push({ id, name, items: [], updated: Date.now() });
             renderGrid();
-            closeAddBoxModal();
-            document.getElementById('new-box-id').value = '';
-            document.getElementById('new-box-name').value = '';
+            hideAddBoxModal();
+            document.getElementById('new-id').value = '';
+            document.getElementById('new-name').value = '';
         }
 
-        let currentBoxId = '';
         function openBox(id) {
             currentBoxId = id;
             const box = boxes.find(b => b.id === id);
-            document.getElementById('drawer-id-label').innerText = `ID: ${box.id}`;
             document.getElementById('drawer-name').innerText = box.name;
-            
-            const list = document.getElementById('item-inputs');
-            list.innerHTML = '';
+            const container = document.getElementById('item-inputs');
+            container.innerHTML = '';
             box.items.forEach(it => addNewItemInput(it));
             if(box.items.length === 0) addNewItemInput('');
-            
-            const d = document.getElementById('drawer');
-            d.classList.remove('hidden');
-            setTimeout(() => d.classList.add('opacity-100'), 10);
+            document.getElementById('drawer').classList.remove('hidden');
+            setTimeout(() => document.getElementById('drawer').classList.add('opacity-100'), 10);
         }
 
         function addNewItemInput(val) {
             const div = document.createElement('div');
-            div.innerHTML = `<input type="text" value="${val}" class="box-item-input w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-1 focus:ring-indigo-400" placeholder="ชื่อของ...">`;
+            div.innerHTML = `<input type="text" value="${val}" class="item-input w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-1 focus:ring-indigo-400" placeholder="ชื่อของ...">`;
             document.getElementById('item-inputs').appendChild(div);
         }
 
-        async function saveToSheet() {
-            const inputs = document.querySelectorAll('.box-item-input');
+        function saveItems() {
+            const inputs = document.querySelectorAll('.item-input');
             const items = Array.from(inputs).map(i => i.value).filter(v => v.trim() !== '');
             const box = boxes.find(b => b.id === currentBoxId);
-            
             box.items = items;
-            const url = localStorage.getItem('mybox_url'); // ดึง URL ที่เคยเซฟไว้ตอน login
-            
-            if(url) {
-                document.getElementById('btn-save').innerText = "กำลังบันทึก...";
-                try {
-                    await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ boxId: currentBoxId, items: items }) });
-                } catch(e) {}
-            }
-            
+            box.updated = Date.now();
             renderGrid();
             closeDrawer();
-            document.getElementById('btn-save').innerText = "บันทึกลง Google Sheet";
         }
 
-        function doSearch() {
-            const q = document.getElementById('search').value.toLowerCase();
-            const info = document.getElementById('search-info');
-            if(!q) { info.innerText = ''; return; }
-            const found = boxes.find(b => b.items.some(it => it.toLowerCase().includes(q)) || b.name.toLowerCase().includes(q));
-            info.innerText = found ? `🔍 อยู่ใน: ${found.name} (${found.id})` : '❌ ไม่พบข้อมูล';
-        }
-
-        function closeDrawer() { 
+        function closeDrawer() {
             document.getElementById('drawer').classList.remove('opacity-100');
             setTimeout(() => document.getElementById('drawer').classList.add('hidden'), 300);
         }
 
-        function openScanner() {
-            document.getElementById('page-scan').classList.remove('hidden');
-            const scanner = new Html5Qrcode("reader");
-            scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
-                scanner.stop();
-                document.getElementById('page-scan').classList.add('hidden');
-                if(boxes.some(b => b.id === text)) openBox(text);
-                else alert('ไม่พบรหัสกล่องนี้ในระบบ');
+        function generatePrintPage() {
+            document.getElementById('app-content').classList.add('hidden');
+            document.getElementById('print-view').classList.remove('hidden');
+            const grid = document.getElementById('qr-print-grid');
+            grid.innerHTML = '';
+            boxes.forEach(box => {
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${box.id}`;
+                grid.innerHTML += `
+                    <div class="border-2 border-dashed border-gray-200 p-4 flex flex-col items-center rounded-3xl">
+                        <div class="text-[8px] text-gray-400 font-bold mb-1 italic">${appName}</div>
+                        <img src="${qrUrl}" class="w-32 h-32 mb-2">
+                        <div class="text-xs font-bold">${box.id}</div>
+                        <div class="text-[9px] text-gray-500 truncate w-full text-center">${box.name}</div>
+                    </div>`;
             });
         }
-        function closeScanner() { document.getElementById('page-scan').classList.add('hidden'); }
 
+        updateAppDisplay();
         renderGrid();
     </script>
 </body>
